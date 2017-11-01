@@ -25,8 +25,6 @@ class BoostedTreeClassificationBostonHousingScikitNumericTest(unittest.TestCase)
         """
         Set up the unit test by loading the dataset and training a model.
         """
-        from sklearn.datasets import load_boston
-
         # Load data and train model
         scikit_data = load_boston()
         self.scikit_data = scikit_data
@@ -81,7 +79,7 @@ class BoostedTreeBinaryClassificationBostonHousingScikitNumericTest(
         args = [dict(zip(options.keys(), p)) for p in product]
 
         print("Testing a total of %s cases. This could take a while" % len(args))
-        for it, arg in enumerate(args):
+        for arg in args:
             metrics = self._train_convert_evaluate(**arg)
             self._check_metrics(metrics, arg)
 
@@ -91,8 +89,6 @@ class BoostedTreeMultiClassClassificationBostonHousingScikitNumericTest(
 
     @classmethod
     def setUpClass(self):
-        from sklearn.datasets import load_boston
-
         # Load data and train model
         import numpy as np
         scikit_data = load_boston()
@@ -127,6 +123,6 @@ class BoostedTreeMultiClassClassificationBostonHousingScikitNumericTest(
         args = [dict(zip(options.keys(), p)) for p in product]
 
         print("Testing a total of %s cases. This could take a while" % len(args))
-        for it, arg in enumerate(args):
+        for arg in args:
             metrics = self._train_convert_evaluate(**arg)
             self._check_metrics(metrics, arg)

@@ -78,7 +78,7 @@ class GradientBoostingRegressorBostonHousingScikitNumericTest(unittest.TestCase)
         args = [dict(zip(options.keys(), p)) for p in product]
 
         print("Testing a total of %s cases. This could take a while" % len(args))
-        for it, arg in enumerate(args):
+        for arg in args:
             metrics = self._train_convert_evaluate(**arg)
             self._check_metrics(metrics, arg)
 
@@ -173,7 +173,7 @@ class XgboostBoosterBostonHousingNumericTest(unittest.TestCase):
         args = [dict(zip(options.keys(), p)) for p in product]
 
         print("Testing a total of %s cases. This could take a while" % len(args))
-        for it, arg in enumerate(args):
+        for arg in args:
             metrics = self._train_convert_evaluate(arg)
             self._check_metrics(metrics, arg)
 
@@ -262,6 +262,6 @@ class XGboostRegressorBostonHousingNumericTest(unittest.TestCase):
         args = [dict(zip(options.keys(), p)) for p in product]
 
         print("Testing a total of %s cases. This could take a while" % len(args))
-        for it, arg in enumerate(args):
+        for arg in args:
             metrics = self._train_convert_evaluate(arg)
             self._check_metrics(metrics, arg)
