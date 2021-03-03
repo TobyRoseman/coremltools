@@ -202,7 +202,7 @@ def numpy_type_to_builtin_type(nptype):
         return types_int16
     elif np.issubclass_(nptype, np.uint32):
         return types_uint32
-    elif np.issubclass_(nptype, np.int32):
+    elif np.issubclass_(nptype, np.int32) or nptype == np.int32:
         return types_int32
     elif np.issubclass_(nptype, np.uint64):
         return types_uint64
@@ -217,8 +217,10 @@ def numpy_type_to_builtin_type(nptype):
         return types_int32
     elif np.issubclass_(nptype, np.float16):
         return types_fp16
-    elif np.issubclass_(nptype, np.float32) or np.issubclass_(nptype,
-        np.single) or nptype == float: # np.float == float (python native)
+    elif np.issubclass_(nptype, np.float32) or \
+         nptype == np.float32 or \
+         np.issubclass_(nptype, np.single) or \
+         nptype == float: # np.float == float (python native)
         return types_fp32
     elif np.issubclass_(nptype, np.float64) or np.issubclass_(nptype, np.double):
         return types_fp64
