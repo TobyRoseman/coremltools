@@ -3,10 +3,12 @@
 #  Use of this source code is governed by a BSD-3-clause license that can be
 #  found in the LICENSE.txt file or at https://opensource.org/licenses/BSD-3-Clause
 
+
 from coremltools.converters.mil.mil import Builder as mb
 from coremltools.converters.mil.mil.passes.graph_pass import AbstractGraphPass
 from coremltools.converters.mil.mil.passes.helper import block_context_manager
 from coremltools.converters.mil.mil.passes.pass_registry import register_pass
+
 
 @register_pass(namespace="common")
 class cast_optimization(AbstractGraphPass):
@@ -31,6 +33,8 @@ class cast_optimization(AbstractGraphPass):
 
     """
     def apply(self, prog):
+        pass
+        '''
         for f in prog.functions.values():
             _fuse_or_cancel_consecutive_casts_block_wrapper(f, {})
 
@@ -40,6 +44,7 @@ class cast_optimization(AbstractGraphPass):
         block_changed = True
         while block_changed:
             block_changed = _cancel_consecutive_casts_connected_to_outputs(prog.functions["main"])
+        '''
 
 
 class Node:
