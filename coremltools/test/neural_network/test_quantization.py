@@ -7,6 +7,7 @@
 Module containing unit tests for verifying various quantizations.
 """
 
+import itertools
 import unittest
 
 import numpy as np
@@ -560,3 +561,20 @@ class TestQuantizeWeightsAPI:
     )
     def test_embeddingND_quantize_CPU_and_NE(self):
         self.test_embeddingND_quantize(ComputeUnit.CPU_AND_NE)
+
+
+class TestKMeansLookup:
+    @pytest.mark.parametrize("weightShape, dtype",
+                             itertools.product(
+                                 [(20, 20), (120, 120)],
+                                 [np.float16, np.float32]
+                             ))
+    def test_kmeans_lookup(self, weightShape, dtype):
+        nbits = 4
+        w = np.random.rand(*weightShape).astype(dtype)
+
+        lookup_table, quantized_weights = quantization_utils._get_kmeans_lookup_table_and_weight(nbits, w)
+
+        assert(len(lookup_table) == 2 ** nbits)
+        assert(quantized_weights.shape == (np.prod(weightShape),))
+        assert(len(np.unique(quantized_weights)) <= len(lookup_table))
