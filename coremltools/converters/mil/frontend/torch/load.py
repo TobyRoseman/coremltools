@@ -71,7 +71,7 @@ def _torchscript_from_model(model_spec):
         return model_spec
     else:
         raise TypeError(
-            "@model must either be a PyTorch .pt or .pth file or a TorchScript object, received: {}".format(
+            "'model' parameter must either be a PyTorch .pt or .pth file or a TorchScript object, received: {}".format(
                 type(model_spec)
             )
         )

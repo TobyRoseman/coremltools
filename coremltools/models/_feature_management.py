@@ -3,10 +3,11 @@
 # Use of this source code is governed by a BSD-3-clause license that can be
 # found in the LICENSE.txt file or at https://opensource.org/licenses/BSD-3-Clause
 
-import operator as op
 from collections import defaultdict
 from copy import copy
 from functools import reduce
+from itertools import chain
+import operator as op
 
 import numpy as _np
 
@@ -325,17 +326,17 @@ def process_or_validate_features(features, num_dimensions=None, feature_type_map
             raise_type_error("Index list for feature %s contains duplicates." % k)
 
     # Now, set num dimensions from the list if it's actually None
-    if num_dimensions is None:
-        from itertools import chain
-        num_dimensions = 1 + max(chain.from_iterable(features.values()))
+    if len(features) > 0:
+        if num_dimensions is None:
+            num_dimensions = 1 + max(chain.from_iterable(features.values()))
 
-    if (
-        set().union(*features.values()) != set(range(num_dimensions))
-        or sum(len(v) for v in features.values()) != num_dimensions
-    ):
-        raise_type_error(
-            "Supplied indices must cover entire range of 0, ..., num_dimensions-1."
-        )
+        if (
+                set().union(*features.values()) != set(range(num_dimensions))
+                or sum(len(v) for v in features.values()) != num_dimensions
+        ):
+            raise_type_error(
+                "Supplied indices must cover entire range of 0, ..., num_dimensions-1."
+            )
 
     # Define the output feature types
     output_features = [None] * len(features)
