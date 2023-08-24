@@ -6843,6 +6843,34 @@ class TestSelect(TorchBaseTest):
         )
 
 
+    @pytest.mark.parametrize(
+        "compute_unit, backend",
+        itertools.product(compute_units, backends)
+    )
+    def test_dynamic_index(self, compute_unit, backend):
+        class M(torch.nn.Module):
+            def forward(self, float_arr, int_arr):
+                dynamic_index = int_arr[1]
+                float_arr[dynamic_index] = 12.95
+                return float_arr
+
+        a = torch.Tensor([1., 2., 4., 5])
+        i = torch.Tensor([0, 1, 2]).long()
+        inputs_types=[
+            ct.TensorType(name="a", shape=a.shape),
+            ct.TensorType(name="i", shape=i.shape, dtype=np.int32)
+        ]
+
+        self.run_compare_torch(
+            [a, i],
+            M(),
+            input_as_shape=False,
+            converter_input_type=inputs_types,
+            backend=backend,
+            compute_unit=compute_unit
+        )
+
+
 class TestNonZero(TorchBaseTest):
     @pytest.mark.parametrize(
         "compute_unit, backend, rank, as_tuple",

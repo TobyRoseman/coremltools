@@ -1856,7 +1856,7 @@ def group_norm(context, node):
         x = mb.mul(x=x,y=weight)
     if bias is not None:
         bias = mb.reshape(x=bias, shape=bias_shape)
-        x = mb.add(x=x,y=bias)
+        x = mb.add(x=x, y=bias)
     context.add(x,node.name)
 
 
@@ -3252,24 +3252,38 @@ def select(context, node):
     inputs = _get_inputs(context, node, expected=3)
     _input = inputs[0]
     dim = inputs[1].val
-    index = inputs[2].val
+    index = inputs[2]
 
     assert dim.shape == ()
-    assert index.shape == ()
 
     # NOTE:
     # Each index in @begin_array/@end_array corresponds to a dimension of @_input
     # Each val of those arrays corresponds to the start/end index to slice in that dimension
     rank = _input.rank
+
     begin_array = [0] * rank
-    begin_array[dim] = index
+    if index.val is None:
+        # index value not known till runtime
+        begin_array[dim] = index
+        begin_array = mb.concat(values=begin_array, axis=0)
+    else:
+        # index value known now
+        assert index.val.shape == ()
+        begin_array[dim] = index.val
+
     end_array = [s if isinstance(s, int) else 0 for s in _input.shape]
     end_mask = [True] * rank
     squeeze_mask = [False] * rank
     squeeze_mask[dim] = True
 
-    if index != -1:
-        end_array[dim] = index + 1
+    if index.val != -1:
+        if  index.val is None:
+            # index value not know till runtime
+            temp = mb.add(x=index, y=1)
+            end_array[dim] = temp
+            end_array = mb.concat(values=end_array, axis=0)
+        else:
+            end_array[dim] = index.val + 1
         end_mask[dim] = False
 
     slice_by_index = mb.slice_by_index(
@@ -3322,7 +3336,9 @@ def _get_slice_params(context, data, inputs):
     for i in range(num_of_slice_set):
         if inputs[3 * i + 1] is None:
             # This is pure index select
-            idx = context[inputs[3 * i]].val
+            idx = context[inputs[3 * i]]
+            if idx.val is not None:
+                idx = idx.val
             begin[i] = idx
             squeeze_mask[i] = True
         else:
