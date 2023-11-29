@@ -3354,6 +3354,22 @@ def loop(context, node):
         context.add(output_var, torch_name=output_name)
 
 
+@register_torch_op
+def _unique2(context, node):
+    (x, sorted, return_inverse, return_counts)  = _get_inputs(context, node, expected=4)
+
+    # Error cases
+    if sorted.val is not True:
+        pass
+    if return_inverse.val is not False:
+        pass
+    if return_counts.val is not False:
+        pass
+
+    temp  = mb.topk(x=x, k=-1)
+    context.add(temp[0], torch_name=node.name)
+    
+
 @register_torch_op(torch_alias=["if"])
 def _if(context, node):
     """ In TorchIR, a conditional looks like:

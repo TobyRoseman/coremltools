@@ -6823,6 +6823,29 @@ class TestLog2(TorchBaseTest):
         )
 
 
+class TestUnique(TorchBaseTest):
+    @pytest.mark.parametrize(
+        "compute_unit, backend",
+        itertools.product(
+            compute_units,
+            backends,
+        )
+    )
+    def test_unique(self, compute_unit, backend):
+        class Model(nn.Module):
+            def forward(self, x):
+                return x.unique()
+                #return torch.unique(x)
+
+        self.run_compare_torch(
+            torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1]),
+            Model(),
+            input_as_shape=False,
+            backend=backend,
+            compute_unit=compute_unit
+        )
+
+
 class TestFlip(TorchBaseTest):
     @pytest.mark.parametrize(
         "compute_unit, backend, rank_dim",
