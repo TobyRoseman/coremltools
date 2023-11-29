@@ -3366,8 +3366,7 @@ def _unique2(context, node):
     if return_counts.val is not False:
         pass
 
-    temp  = mb.topk(x=x, k=-1)
-    context.add(temp[0], torch_name=node.name)
+    # XXX: flatten
     
 
 @register_torch_op(torch_alias=["if"])

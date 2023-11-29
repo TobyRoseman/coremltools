@@ -365,7 +365,7 @@ class one_hot(Operation):
     ----------
     indices: tensor<[D], i32> (Required)
         * Tensor, values indicate the locations for each one-hot vector to take the ``on_value``.
-    one_got_vector_size: i32 (Required)
+    one_hot_vector_size: i32 (Required)
         * Indicates the number of returning vectors.
     axis: const i32 (Optional)
         * Indicates which dimension to append the new axis.
@@ -444,7 +444,7 @@ class one_hot(Operation):
 @register_op
 class pad(Operation):
     """
-    Pad a tensor.
+    Pads a tensor.
 
     Parameters
     ----------
