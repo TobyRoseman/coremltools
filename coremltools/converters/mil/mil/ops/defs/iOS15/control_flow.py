@@ -143,12 +143,12 @@ class Const(Operation):
 
     Parameters
     ----------
+    val: const<\*,T> (Required)
+
     mode: immediate_value, file_value (Optional)
         * Determines how the constant value is stored in the internal MIL format.
         * For large constants such as convolution weights, use ``file_value``.
         * For smaller-size constants such as values of a stride, use ``immediate_value``.
-
-    val: const<\*,T> (Required)
 
     Returns
     -------

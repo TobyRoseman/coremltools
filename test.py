@@ -23,8 +23,27 @@ def prog(x):
     non_zero_indices = mb.non_zero(x=diff)
     unique_values = mb.gather(x=x_sorted, indices=non_zero_indices)
     unique_values = mb.squeeze(x = unique_values)
-    
-    return unique_values
+
+
+    # Loop variable initilization:
+    #     (i, length, counts) = (0, len(unique_values), [])
+    i = mb.const(val=[0])
+    length = mb.shape(x=unique_values)
+    counts = mb.cast(x=mb.const(val=[]), dtype="int32")
+
+    def cond(i, length, _):
+        # return i < length
+        return mb.less(x=i, y=length)
+
+    def body(i, length, counts):
+        # i++
+        i = mb.add(x=i, y=mb.const(val=[1]))
+
+        counts = mb.concat(values=(counts, mb.const(val=[99])), axis=-1)
+
+        return (i, length, counts)
+
+    return mb.while_loop(_cond=cond, _body=body, loop_vars=(i, length, counts))
 
 
 m = ct.convert(prog, source="milinternal")
