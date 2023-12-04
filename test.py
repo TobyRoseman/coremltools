@@ -21,21 +21,24 @@ def prog(x):
     diff = mb.sub(x=x_sorted_padded, y=x_sorted_shifted)
 
     non_zero_indices = mb.non_zero(x=diff)
-    unique_values = mb.gather(x=x_sorted, indices=non_zero_indices)
-    unique_values = mb.squeeze(x = unique_values)
+    unique_values_unsqueeze = mb.gather(x=x_sorted, indices=non_zero_indices)
+    unique_values = mb.squeeze(x = unique_values_unsqueeze)
 
     # Get counts
     num_unique_values = mb.shape(x=unique_values)
     x_tile = mb.tile(x=x, reps=num_unique_values)
-    tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
-    x_tile = mb.reshape(x=x_tile, shape=tile_shape)
+    #tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
+    #x_tile = mb.reshape(x=x_tile, shape=tile_shape)
+    x_tile = mb.reshape(x=x_tile, shape=(3,5))
 
-
-
+    unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
+    diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
     
-    #diff = mb.sub(x=x_tile, y=unique_values)
-    
-    return x_tile
+    temp = mb.logical_not(
+        x=mb.cast(x=diff, dtype="bool")
+    )
+
+    return mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
 
 
 m = ct.convert(prog, source="milinternal")
