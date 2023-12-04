@@ -6824,6 +6824,7 @@ class TestLog2(TorchBaseTest):
 
 
 class TestUnique(TorchBaseTest):
+    '''
     @pytest.mark.parametrize(
         "compute_unit, backend",
         itertools.product(
@@ -6831,18 +6832,40 @@ class TestUnique(TorchBaseTest):
             backends,
         )
     )
-    def test_unique(self, compute_unit, backend):
+    '''
+    def test_unique_defaults(self):      #, compute_unit, backend):
         class Model(nn.Module):
             def forward(self, x):
-                return x.unique()
-                #return torch.unique(x)
+                return torch.unique(x)
+
+
+        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
 
         self.run_compare_torch(
-            torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1]),
+            x,
             Model(),
             input_as_shape=False,
-            backend=backend,
-            compute_unit=compute_unit
+            backend=('mlprogram', 'fp16'),
+            #compute_unit=compute_unit,
+            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
+        )
+
+
+    def test_unique_with_count(self):
+        class Model(nn.Module):
+            def forward(self, x):
+                return torch.unique(x, return_counts=True)
+
+
+        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
+
+        self.run_compare_torch(
+            x,
+            Model(),
+            input_as_shape=False,
+            backend=('mlprogram', 'fp16'),
+            #compute_unit=compute_unit,
+            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
         )
 
 

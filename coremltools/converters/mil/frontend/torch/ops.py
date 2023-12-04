@@ -3357,17 +3357,47 @@ def loop(context, node):
 @register_torch_op
 def _unique2(context, node):
     (x, sorted, return_inverse, return_counts)  = _get_inputs(context, node, expected=4)
-
+    
     # Error cases
     if sorted.val is not True:
-        pass
+        raise NotImplementedError(f"sorted=True not supported for unique op")
     if return_inverse.val is not False:
-        pass
-    if return_counts.val is not False:
-        pass
+        raise NotImplementedError(f"return_inverse=True not supported for unique op")
 
-    # XXX: flatten
-    
+    # Sort input
+    indices = mb.argsort(x=x, ascending=True)
+    x_sorted = mb.gather_along_axis(x=x, indices=indices)
+
+    # Subtract nth+1 element from nth element
+    neg_inf = np.float16(-np.inf)
+    x_sorted = mb.cast(x=x_sorted, dtype="fp16")
+    x_sorted_shifted  = mb.pad(x=x_sorted, pad=[1, 0], constant_val=neg_inf)
+    x_sorted_padded = mb.pad(x=x_sorted, pad=[0, 1], mode="replicate")
+    diff = mb.sub(x=x_sorted_padded, y=x_sorted_shifted)
+
+    non_zero_indices = mb.non_zero(x=diff)
+    unique_values_unsqueeze = mb.gather(x=x_sorted, indices=non_zero_indices)
+    unique_values = mb.squeeze(x = unique_values_unsqueeze)
+
+    context.add(unique_values, torch_name=node.outputs[0])
+    if return_counts.val is False:
+        return
+
+    # Get counts
+    num_unique_values = mb.shape(x=unique_values)
+    x_tile = mb.tile(x=x, reps=num_unique_values)
+    tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
+    x_tile = mb.reshape(x=x_tile, shape=tile_shape)
+
+    unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
+    diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
+
+    temp = mb.logical_not(
+        x=mb.cast(x=diff, dtype="bool")
+    )
+    counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
+    context.add(counts, torch_name=node.outputs[2])
+
 
 @register_torch_op(torch_alias=["if"])
 def _if(context, node):
