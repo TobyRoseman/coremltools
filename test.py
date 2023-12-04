@@ -4,8 +4,9 @@ import coremltools as ct
 import numpy as np
 
 
-x = np.array([1, 3, 5, 5, 3], dtype=np.int32)
+#x = np.array([1, 3, 5, 5, 3], dtype=np.int32)
 
+x = np.array([1, 3, 5, 5, 3, 5], dtype=np.int32)
 
 @mb.program(input_specs=[mb.TensorSpec(shape=x.shape, dtype=types.int32)])
 def prog(x):
@@ -27,9 +28,9 @@ def prog(x):
     # Get counts
     num_unique_values = mb.shape(x=unique_values)
     x_tile = mb.tile(x=x, reps=num_unique_values)
-    #tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
-    #x_tile = mb.reshape(x=x_tile, shape=tile_shape)
-    x_tile = mb.reshape(x=x_tile, shape=(3,5))
+    tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
+    x_tile = mb.reshape(x=x_tile, shape=tile_shape)
+
 
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
     diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
@@ -37,8 +38,10 @@ def prog(x):
     temp = mb.logical_not(
         x=mb.cast(x=diff, dtype="bool")
     )
+    counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
+    
+    return (unique_values, counts)
 
-    return mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
 
 
 m = ct.convert(prog, source="milinternal")
