@@ -6869,6 +6869,25 @@ class TestUnique(TorchBaseTest):
         )
 
 
+    def test_unique_with_indices(self):
+        class Model(nn.Module):
+            def forward(self, x):
+                return torch.unique(x, return_inverse=True)
+
+
+        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
+
+        self.run_compare_torch(
+            x,
+            Model(),
+            input_as_shape=False,
+            backend=('mlprogram', 'fp16'),
+            #compute_unit=compute_unit,
+            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
+        )
+
+
+
 class TestFlip(TorchBaseTest):
     @pytest.mark.parametrize(
         "compute_unit, backend, rank_dim",

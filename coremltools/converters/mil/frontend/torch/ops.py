@@ -3358,11 +3358,9 @@ def loop(context, node):
 def _unique2(context, node):
     (x, sorted, return_inverse, return_counts)  = _get_inputs(context, node, expected=4)
     
-    # Error cases
+    # Unsupported case
     if sorted.val is not True:
-        raise NotImplementedError(f"sorted=True not supported for unique op")
-    if return_inverse.val is not False:
-        raise NotImplementedError(f"return_inverse=True not supported for unique op")
+        raise NotImplementedError("sorted=False not supported for unique op")
 
     # Sort input
     indices = mb.argsort(x=x, ascending=True)
@@ -3380,10 +3378,13 @@ def _unique2(context, node):
     unique_values = mb.squeeze(x = unique_values_unsqueeze)
 
     context.add(unique_values, torch_name=node.outputs[0])
-    if return_counts.val is False:
+    if return_counts.val is False and return_inverse.val is False:
+        # only the unique values are needed
         return
 
-    # Get counts
+    # Calculate a UxN boolean tensor, where:
+    #     U - number of unique values
+    #     N - number of input elements
     num_unique_values = mb.shape(x=unique_values)
     x_tile = mb.tile(x=x, reps=num_unique_values)
     tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
@@ -3391,12 +3392,21 @@ def _unique2(context, node):
 
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
     diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
-
     temp = mb.logical_not(
         x=mb.cast(x=diff, dtype="bool")
     )
-    counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
-    context.add(counts, torch_name=node.outputs[2])
+
+    if return_inverse.val is True:
+        # Get indices
+        range = mb.range_1d(start=0, end=mb.squeeze(x=num_unique_values), step=1)
+        temp = mb.cast(x=temp, dtype="int32")
+        indices = mb.matmul(x=range, y=temp)
+        context.add(indices, torch_name=node.outputs[1])
+
+    if return_counts.val is True:
+        # Get counts
+        counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
+        context.add(counts, torch_name=node.outputs[2])
 
 
 @register_torch_op(torch_alias=["if"])
