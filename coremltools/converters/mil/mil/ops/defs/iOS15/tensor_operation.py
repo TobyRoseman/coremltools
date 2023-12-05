@@ -570,10 +570,10 @@ class range_1d(Operation):
 
     Parameters
     ----------
-    end: <T> (Required)
-        * The upper limit of the sequence, exclusive.
     start: <T> (Required)
         * The start point of the sequence.
+    end: <T> (Required)
+        * The upper limit of the sequence, exclusive.
     step: <T> (Required)
         * Number that increments ``start``.
 

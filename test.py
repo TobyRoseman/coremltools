@@ -4,9 +4,8 @@ import coremltools as ct
 import numpy as np
 
 
-#x = np.array([1, 3, 5, 5, 3], dtype=np.int32)
-
 x = np.array([1, 3, 5, 5, 3, 5], dtype=np.int32)
+
 
 @mb.program(input_specs=[mb.TensorSpec(shape=x.shape, dtype=types.int32)])
 def prog(x):
@@ -31,7 +30,6 @@ def prog(x):
     tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
     x_tile = mb.reshape(x=x_tile, shape=tile_shape)
 
-
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
     diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
     
@@ -39,8 +37,13 @@ def prog(x):
         x=mb.cast(x=diff, dtype="bool")
     )
     counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
+
+    # Get indices
+    range = mb.range_1d(start=0, end=mb.squeeze(x=num_unique_values), step=1)
+    temp = mb.cast(x=temp, dtype="int32")
+    indices = mb.matmul(x=range, y=temp)
     
-    return (unique_values, counts)
+    return (unique_values, counts, indices)
 
 
 
