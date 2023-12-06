@@ -3403,6 +3403,7 @@ def _unique2(context, node):
         # Get indices
         range = mb.range_1d(start=0, end=mb.squeeze(x=num_unique_values), step=1)
         indices = mb.matmul(x=range, y=mb.cast(x=bool_tensor, dtype="int32"))
+        indices = mb.reshape(x=indices, shape=mb.shape(x=x))
         context.add(indices, torch_name=node.outputs[1])
 
     if return_counts.val is True:

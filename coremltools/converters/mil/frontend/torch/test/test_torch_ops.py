@@ -6858,7 +6858,6 @@ class TestUnique(TorchBaseTest):
             [[1, 2, 3, 100], [3, 2, 99, 1]]
         ]
     )
-
     def test_unique_with_count(self, x):
         class Model(nn.Module):
             def forward(self, x):
@@ -6875,14 +6874,21 @@ class TestUnique(TorchBaseTest):
             converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
         )
 
-
-    def test_unique_with_indices(self):
+        
+    @pytest.mark.parametrize(
+        "x",
+        [
+            [1, 2, 3, 2, 2, 3, 99, -1, 1],
+            [[1, 2, 3, 100], [3, 2, 99, 1]]
+        ]
+    )
+    def test_unique_with_indices(self, x):
         class Model(nn.Module):
             def forward(self, x):
                 return torch.unique(x, return_inverse=True)
 
 
-        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
+        x = torch.Tensor(x)
 
         self.run_compare_torch(
             x,
