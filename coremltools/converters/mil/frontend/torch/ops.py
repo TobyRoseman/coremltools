@@ -3362,13 +3362,11 @@ def _unique2(context, node):
     if sorted.val is not True:
         raise NotImplementedError("sorted=False not supported for unique op")
 
-    # Flatten input
     x_flatten = mb.reshape(x=x, shape=[-1])
-    x = x_flatten
 
     # Sort input
-    indices = mb.argsort(x=x, ascending=True)
-    x_sorted = mb.gather_along_axis(x=x, indices=indices)
+    indices = mb.argsort(x=x_flatten, ascending=True)
+    x_sorted = mb.gather_along_axis(x=x_flatten, indices=indices)
 
     # Subtract nth+1 element from nth element
     neg_inf = np.float16(-np.inf)
@@ -3381,6 +3379,7 @@ def _unique2(context, node):
     unique_values_unsqueeze = mb.gather(x=x_sorted, indices=non_zero_indices)
     unique_values = mb.squeeze(x = unique_values_unsqueeze)
 
+    # Add unique values to output and see if we're done.
     context.add(unique_values, torch_name=node.outputs[0])
     if return_counts.val is False and return_inverse.val is False:
         # only the unique values are needed
@@ -3390,8 +3389,8 @@ def _unique2(context, node):
     #     U - number of unique values
     #     N - number of input elements
     num_unique_values = mb.shape(x=unique_values)
-    x_tile = mb.tile(x=x, reps=num_unique_values)
-    tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x)), axis=0)
+    x_tile = mb.tile(x=x_flatten, reps=num_unique_values)
+    tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x_flatten)), axis=0)
     x_tile = mb.reshape(x=x_tile, shape=tile_shape)
 
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
