@@ -6823,6 +6823,42 @@ class TestLog2(TorchBaseTest):
         )
 
 
+class TestUnique(TorchBaseTest):
+    @pytest.mark.parametrize(
+        "compute_unit, backend, x, return_inverse, return_counts",
+        itertools.product(
+            compute_units,
+            backends,
+            (
+                [1, 2, 3, 2, 2, 3, 99, -1, 1],
+                [[1, 2, 3, 100], [3, 2, 99, 1]],
+            ),
+            (True, False),
+            (True, False),
+        )
+    )
+    def test(self, compute_unit, backend, x, return_inverse, return_counts):
+        if backend[0] == 'neuralnetwork':
+            pytest.xfail(
+                "rdar://119266339 ([Bug] NeuralNetwork backend only: cast + pad cause type mismatch)"
+            )
+
+        class Model(nn.Module):
+            def forward(self, x):
+                return torch.unique(
+                    x, return_inverse=return_inverse, return_counts=return_counts
+                )
+
+
+        self.run_compare_torch(
+            torch.Tensor(x),
+            Model(),
+            input_as_shape=False,
+            backend=backend,
+            compute_unit=compute_unit,
+        )
+
+
 class TestFlip(TorchBaseTest):
     @pytest.mark.parametrize(
         "compute_unit, backend, rank_dim",
