@@ -3364,17 +3364,18 @@ def _unique2(context, node):
 
     x_flatten = mb.reshape(x=x, shape=[-1])
 
-    # Sort input
+    # Sort flattend input
     indices = mb.argsort(x=x_flatten, ascending=True)
     x_sorted = mb.gather_along_axis(x=x_flatten, indices=indices)
 
-    # Subtract nth+1 element from nth element
+    # Subtract n_th+1 element from n_th element
     neg_inf = np.float16(-np.inf)
     x_sorted = mb.cast(x=x_sorted, dtype="fp16")
     x_sorted_shifted  = mb.pad(x=x_sorted, pad=[1, 0], constant_val=neg_inf)
     x_sorted_padded = mb.pad(x=x_sorted, pad=[0, 1], mode="replicate")
     diff = mb.sub(x=x_sorted_padded, y=x_sorted_shifted)
 
+    # Get non-zero element after subtraction to determine unique values
     non_zero_indices = mb.non_zero(x=diff)
     unique_values_unsqueeze = mb.gather(x=x_sorted, indices=non_zero_indices)
     unique_values = mb.squeeze(x = unique_values_unsqueeze)
@@ -3392,23 +3393,21 @@ def _unique2(context, node):
     x_tile = mb.tile(x=x_flatten, reps=num_unique_values)
     tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x_flatten)), axis=0)
     x_tile = mb.reshape(x=x_tile, shape=tile_shape)
-
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
     diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
-    temp = mb.logical_not(
+    bool_tensor = mb.logical_not(
         x=mb.cast(x=diff, dtype="bool")
     )
 
     if return_inverse.val is True:
         # Get indices
         range = mb.range_1d(start=0, end=mb.squeeze(x=num_unique_values), step=1)
-        temp = mb.cast(x=temp, dtype="int32")
-        indices = mb.matmul(x=range, y=temp)
+        indices = mb.matmul(x=range, y=mb.cast(x=bool_tensor, dtype="int32"))
         context.add(indices, torch_name=node.outputs[1])
 
     if return_counts.val is True:
         # Get counts
-        counts = mb.reduce_sum(x=mb.cast(x=temp, dtype='fp16'), axes=(-1,))
+        counts = mb.reduce_sum(x=mb.cast(x=bool_tensor, dtype='fp16'), axes=(-1,))
         context.add(counts, torch_name=node.outputs[2])
 
 
