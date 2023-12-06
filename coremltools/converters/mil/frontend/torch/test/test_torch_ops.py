@@ -6851,13 +6851,20 @@ class TestUnique(TorchBaseTest):
         )
 
 
-    def test_unique_with_count(self):
+    @pytest.mark.parametrize(
+        "x",
+        [
+            [1, 2, 3, 2, 2, 3, 99, -1, 1],
+            [[1, 2, 3, 100], [3, 2, 99, 1]]
+        ]
+    )
+
+    def test_unique_with_count(self, x):
         class Model(nn.Module):
             def forward(self, x):
                 return torch.unique(x, return_counts=True)
 
-
-        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
+        x = torch.Tensor(x)
 
         self.run_compare_torch(
             x,

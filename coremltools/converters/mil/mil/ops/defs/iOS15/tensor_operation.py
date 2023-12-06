@@ -1117,6 +1117,10 @@ class split(Operation):
         * The tensors may be variadic, but the number of tensors must be determined
           at compile time (i.e. a tuple).
 
+    axis: const<i32> (Required)
+        * The dimension along which to concatenate. Must be in the
+          range ``[-rank(x), rank(x))``.
+
     num_splits: <i32> (Optional)
         If specified, divide ``x`` into ``num_splits`` tensors along ``axis``.
         Its behavior depends on ``split_sizes``:
@@ -1133,10 +1137,6 @@ class split(Operation):
     split_sizes: const<S, i32> (Optional)
         * Sizes to split to. The sum of ``split_sizes`` must equal to
           ``value.shape[axis]``.
-
-    axis: const<i32> (Required)
-        * The dimension along which to concatenate. Must be in the
-          range ``[-rank(x), rank(x))``.
 
     Returns
     -------

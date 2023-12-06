@@ -3362,6 +3362,10 @@ def _unique2(context, node):
     if sorted.val is not True:
         raise NotImplementedError("sorted=False not supported for unique op")
 
+    # Flatten input
+    x_flatten = mb.reshape(x=x, shape=[-1])
+    x = x_flatten
+
     # Sort input
     indices = mb.argsort(x=x, ascending=True)
     x_sorted = mb.gather_along_axis(x=x, indices=indices)
