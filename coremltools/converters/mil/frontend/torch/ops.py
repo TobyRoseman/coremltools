@@ -3357,7 +3357,7 @@ def loop(context, node):
 @register_torch_op
 def _unique2(context, node):
     (x, sorted, return_inverse, return_counts)  = _get_inputs(context, node, expected=4)
-    
+
     # Unsupported case
     if sorted.val is not True:
         raise NotImplementedError("sorted=False not supported for unique op")
@@ -3394,10 +3394,9 @@ def _unique2(context, node):
     tile_shape = mb.concat(values=(num_unique_values, mb.shape(x=x_flatten)), axis=0)
     x_tile = mb.reshape(x=x_tile, shape=tile_shape)
     unique_values_unsqueeze = mb.cast(x=unique_values_unsqueeze, dtype="int32")
+    x_tile, unique_values_unsqueeze = promote_input_dtypes([x_tile, unique_values_unsqueeze])
     diff = mb.sub(x=x_tile, y=unique_values_unsqueeze)
-    bool_tensor = mb.logical_not(
-        x=mb.cast(x=diff, dtype="bool")
-    )
+    bool_tensor = mb.logical_not(x=mb.cast(x=diff, dtype="bool"))
 
     if return_inverse.val is True:
         # Get indices

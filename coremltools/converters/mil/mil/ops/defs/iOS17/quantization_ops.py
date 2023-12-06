@@ -93,11 +93,11 @@ class quantize(Operation):
                   ``input.shape[axis]``; that is, equal to ``3``.
                 - This is broadcasted to ``(1, 3, 1, 1)``.
 
-    axis: const tensor<int32, []> (Optional)
-
     output_dtype: const tensor<string, []> (Required)
         * This parameter can take ``"uint8"``, ``"int8"`` as values.
         * The ``output_dtype`` value must match the ``zero_point`` dtype.
+
+    axis: const tensor<int32, []> (Optional)
 
     Returns
     -------

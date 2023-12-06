@@ -6847,7 +6847,6 @@ class TestUnique(TorchBaseTest):
             input_as_shape=False,
             backend=('mlprogram', 'fp16'),
             #compute_unit=compute_unit,
-            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
         )
 
 
@@ -6871,10 +6870,9 @@ class TestUnique(TorchBaseTest):
             input_as_shape=False,
             backend=('mlprogram', 'fp16'),
             #compute_unit=compute_unit,
-            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
         )
 
-        
+
     @pytest.mark.parametrize(
         "x",
         [
@@ -6896,9 +6894,7 @@ class TestUnique(TorchBaseTest):
             input_as_shape=False,
             backend=('mlprogram', 'fp16'),
             #compute_unit=compute_unit,
-            converter_input_type=[ct.TensorType(shape=x.shape, dtype=np.int32)]
         )
-
 
 
 class TestFlip(TorchBaseTest):
