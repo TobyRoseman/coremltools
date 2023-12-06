@@ -585,9 +585,9 @@ class slice_by_size(Operation):
     ----------
     x: tensor<*?, T> (Required)
         * Input tensor.
-    begin: tensor<[rank(x)], i32> Required
+    begin: tensor<[rank(x)], i32> (Required)
         * The begin index for slice.
-    size: tensor<[rank(x)], i32> Required
+    size: tensor<[rank(x)], i32> (Required)
         * The size that is to be sliced. If ``size`` is ``-1``,
           all the remaining elements starting with "begin" are sliced.
 

@@ -56,6 +56,7 @@ def _convert_to_torch_inputtype(inputs: List[TensorType]) -> List[TensorType]:
             raise ValueError("Unknown type {} for conversion to InputType.".format(type(_input)))
     return input_type
 
+
 class QuantizationContext:
     """
     Utilities to manage information pertaining to quantization of tensors in a PyTorch graph.
