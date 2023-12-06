@@ -6824,76 +6824,38 @@ class TestLog2(TorchBaseTest):
 
 
 class TestUnique(TorchBaseTest):
-    '''
     @pytest.mark.parametrize(
-        "compute_unit, backend",
+        "compute_unit, backend, x, return_inverse, return_counts",
         itertools.product(
             compute_units,
             backends,
+            (
+                [1, 2, 3, 2, 2, 3, 99, -1, 1],
+                [[1, 2, 3, 100], [3, 2, 99, 1]],
+            ),
+            (True, False),
+            (True, False),
         )
     )
-    '''
-    def test_unique_defaults(self):      #, compute_unit, backend):
+    def test(self, compute_unit, backend, x, return_inverse, return_counts):
+        if backend[0] == 'neuralnetwork':
+            pytest.xfail(
+                "rdar://119266339 ([Bug] NeuralNetwork backend only: cast + pad cause type mismatch)"
+            )
+
         class Model(nn.Module):
             def forward(self, x):
-                return torch.unique(x)
+                return torch.unique(
+                    x, return_inverse=return_inverse, return_counts=return_counts
+                )
 
-
-        x = torch.Tensor([1, 2, 3, 2, 2, 3, 99, -1, 1])
 
         self.run_compare_torch(
-            x,
+            torch.Tensor(x),
             Model(),
             input_as_shape=False,
-            backend=('mlprogram', 'fp16'),
-            #compute_unit=compute_unit,
-        )
-
-
-    @pytest.mark.parametrize(
-        "x",
-        [
-            [1, 2, 3, 2, 2, 3, 99, -1, 1],
-            [[1, 2, 3, 100], [3, 2, 99, 1]]
-        ]
-    )
-    def test_unique_with_count(self, x):
-        class Model(nn.Module):
-            def forward(self, x):
-                return torch.unique(x, return_counts=True)
-
-        x = torch.Tensor(x)
-
-        self.run_compare_torch(
-            x,
-            Model(),
-            input_as_shape=False,
-            backend=('mlprogram', 'fp16'),
-            #compute_unit=compute_unit,
-        )
-
-
-    @pytest.mark.parametrize(
-        "x",
-        [
-            [1, 2, 3, 2, 2, 3, 99, -1, 1],
-            [[1, 2, 3, 100], [3, 2, 99, 1]]
-        ]
-    )
-    def test_unique_with_indices(self, x):
-        class Model(nn.Module):
-            def forward(self, x):
-                return torch.unique(x, return_inverse=True)
-
-
-        x = torch.Tensor(x)
-
-        self.run_compare_torch(
-            x,
-            Model(),
-            input_as_shape=False,
-            backend=('mlprogram', 'fp16'),
-            #compute_unit=compute_unit,
+            backend=backend,
+            compute_unit=compute_unit,
         )
 
 
