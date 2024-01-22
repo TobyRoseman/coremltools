@@ -8505,6 +8505,52 @@ class TestMeshgrid(TorchBaseTest):
         )
 
 
+class TestADDMM(TorchBaseTest):
+    @pytest.mark.parametrize(
+        "compute_unit, backend, beta, alpha",
+        itertools.product(
+            compute_units,
+            backends,
+            (1., 2.),
+            (1., 2.),
+        )
+    )
+    def test_ADDMM(self, compute_unit, backend, beta, alpha):
+        class TestModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.i = torch.rand(512,)
+                self.m2 = torch.rand(512, 512)
+
+            def forward(self, x):
+                return torch.addmm(self.i, x, self.m2, beta=beta, alpha=alpha)
+
+
+        self.run_compare_torch(
+            (1, 512), TestModel(), backend=backend, compute_unit=compute_unit,
+        )
+
+
+    @pytest.mark.parametrize(
+        "compute_unit, backend",
+        itertools.product(compute_units, backends)
+    )
+    def test_ADDMM_mytest(self, compute_unit, backend):   # XXX: better name
+        class TestModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.i = torch.rand(1, 512)
+                self.m2 = torch.rand(512, 512)
+
+            def forward(self, x):
+                return torch.addmm(self.i, x, self.m2)
+
+
+        self.run_compare_torch(
+            (1, 512), TestModel(), backend=backend, compute_unit=compute_unit,
+        )
+
+
 class TestScatter(TorchBaseTest):
     @pytest.mark.parametrize(
         "compute_unit, backend, shapes_dims, minimum_deployment_target",

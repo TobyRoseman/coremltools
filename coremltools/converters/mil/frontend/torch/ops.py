@@ -924,6 +924,7 @@ def addmm(context, node):
     # addmm(Tensor input, Tensor mat1, Tensor mat2, Scalar beta=1, Scalar alpha=1)
     # output = beta * input + alpha * mat1 * mat2
 
+
     assert len(node.outputs) == 1
     inputs = _get_inputs(context, node, expected=[3, 4, 5])
     bias = inputs[0]
@@ -942,6 +943,13 @@ def addmm(context, node):
         mat1 = mb.mul(x=alpha, y=mat1, name=mat1.name + "_scaled")
         context.add(mat1)
 
+    '''
+    assert len(bias.shape) <= 2
+    if len(bias.shape) == 2:
+        assert bias.shape[0] == 1
+        bias = mb.const(val=bias.val[0])
+    '''
+    
     # MIL linear will transpose mat2, but addmm expects that mat1 and mat2
     # can multiply as is. So we add a transpose.
     mat2 = mb.transpose(x=mat2, perm=[1, 0], name=mat2.name + "_transposed")
