@@ -3,6 +3,7 @@ configparser
 h5py==2.10.0; platform_machine != "arm64" and python_version < "3.8"
 h5py==3.8.0; platform_machine != "arm64" and python_version >= "3.8"
 future
+numpy==2.0.0
 libsvm; python_version < '3.11'
 olefile==0.44
 pandas
