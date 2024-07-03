@@ -63,6 +63,7 @@ MLDictionaryFeatureProvider * Utils::dictToFeatures(const py::dict& dict, NSErro
         for (const auto element : dict) {
             std::string key = element.first.cast<std::string>();
             NSString *nsKey = [NSString stringWithUTF8String:key.c_str()];
+            py::print("Key: ", [nsKey UTF8String]);
             id nsValue = Utils::convertValueToObjC(element.second);
             inputDict[nsKey] = nsValue;
         }
@@ -178,10 +179,14 @@ static MLFeatureValue * convertValueToDictionary(const py::handle& handle) {
 static MLFeatureValue * convertValueToArray(const py::handle& handle) {
     // if this line throws, it can't be an array (caller should catch)
     py::array buf = handle.cast<py::array>();
+    py::print("---0---");
     if (buf.shape() == nullptr) {
         throw std::runtime_error("no shape, can't be an array");
     }
+    py::print("buf.shape(): ", buf.shape());
+    py::print("---1---");
     PybindCompatibleArray *array = [[PybindCompatibleArray alloc] initWithArray:buf];
+    py::print("---2---");
     return [MLFeatureValue featureValueWithMultiArray:array];
 }
 
@@ -371,53 +376,61 @@ static bool IsPILImage(const py::handle& handle) {
 }
 
 MLFeatureValue * Utils::convertValueToObjC(const py::handle& handle) {
-    
+
+
+    py::print("***0****");
     if (PyAnyInteger_Check(handle.ptr())) {
         try {
             int64_t val = handle.cast<int64_t>();
             return [MLFeatureValue featureValueWithInt64:val];
         } catch(...) {}
     }
-    
+
+    py::print("***1****");
     if (PyFloat_Check(handle.ptr())) {
         try {
             double val = handle.cast<double>();
             return [MLFeatureValue featureValueWithDouble:val];
         } catch(...) {}
     }
-    
+
+    py::print("***2****");
     if (PyBytes_Check(handle.ptr()) || PyUnicode_Check(handle.ptr())) {
         try {
             std::string val = handle.cast<std::string>();
             return [MLFeatureValue featureValueWithString:[NSString stringWithUTF8String:val.c_str()]];
         } catch(...) {}
     }
-    
+
+    py::print("***3****");
     if (PyDict_Check(handle.ptr())) {
         try {
             return convertValueToDictionary(handle);
         } catch(...) {}
     }
     
+    py::print("***4****");
     if(PyList_Check(handle.ptr()) || PyTuple_Check(handle.ptr())) {
         try {
             return convertValueToSequence(handle);
         } catch(...) {}
     }
 
+    py::print("***5****");      /// -------------------------
     if(PyObject_CheckBuffer(handle.ptr())) {
-        try {
-            return convertValueToArray(handle);
-        } catch(...) {}
+      //try {
+      return convertValueToArray(handle);
+            //} catch(...) {}
     }
-    
+
+    py::print("***6****");
     if (IsPILImage(handle)) {
         return convertValueToImage(handle);
     }
     
-    py::print("Error: value type not convertible:");
+    py::print("Error: value type not convertible: ----");
     py::print(handle);
-    throw std::runtime_error("value type not convertible");
+    throw std::runtime_error("value type not convertible xxxxx");
 }
 
 std::vector<size_t> Utils::convertNSArrayToCpp(NSArray<NSNumber *> *array) {

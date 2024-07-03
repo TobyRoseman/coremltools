@@ -17,8 +17,6 @@ scikit-learn==0.19.2; python_version < '3.8'
 scikit-learn==1.1.2; python_version >= '3.8'
 
 scipy>1.4 ; python_version < '3.8'
-scipy==1.8.1; python_version >= '3.8' and python_version < '3.11'
-scipy==1.9.2; python_version == '3.11'
 
 six
 sympy > 1.6

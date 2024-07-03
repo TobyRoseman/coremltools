@@ -184,6 +184,9 @@ class CorrectnessTest(unittest.TestCase):
             model = coremltools.utils._convert_neural_network_weights_to_fp16(model)
 
         prediction = model.predict(input)
+
+        import ipdb; ipdb.set_trace()
+
         for output_name in expected:
             if self.__class__.__name__ == "SimpleTest":
                 self._test_shape_equality(
@@ -512,7 +515,7 @@ class SimpleTest(CorrectnessTest):
 
         input = {"data_0": x1, "data_1": x2}
         expected = {"output": np.minimum(x1, x2)}
-
+        
         self._test_model(builder.spec, input, expected)
         self.assertEqual(len(input_dim), builder._get_rank("output"))
 

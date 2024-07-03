@@ -50,6 +50,7 @@ struct handle_type_name<array> {
 template <typename type, typename SFINAE = void>
 struct npy_format_descriptor;
 
+//  XXXXXXXXX
 struct PyArrayDescr_Proxy {
     PyObject_HEAD
     PyObject *typeobj;
@@ -537,6 +538,7 @@ struct type_caster<unchecked_mutable_reference<T, Dim>>
 
 PYBIND11_NAMESPACE_END(detail)
 
+
 class dtype : public object {
 public:
     PYBIND11_OBJECT_DEFAULT(dtype, object, detail::npy_api::get().PyArrayDescr_Check_)
@@ -561,6 +563,10 @@ public:
         args["formats"] = std::move(formats);
         args["offsets"] = std::move(offsets);
         args["itemsize"] = pybind11::int_(itemsize);
+
+        //std::cout<<"pybind code, itemsize"<<itemsize<<std.endl;
+
+
         m_ptr = from_args(args).release().ptr();
     }
 
@@ -586,12 +592,15 @@ public:
         return detail::npy_format_descriptor<typename std::remove_cv<T>::type>::dtype();
     }
 
+    //  XXXXXXXXX
     /// Size of the data type in bytes.
     ssize_t itemsize() const { return detail::array_descriptor_proxy(m_ptr)->elsize; }
 
     /// Returns true for structured data types.
     bool has_fields() const { return detail::array_descriptor_proxy(m_ptr)->names != nullptr; }
 
+
+    //  XXXXXXXXX
     /// Single-character code for dtype's kind.
     /// For example, floating point types are 'f' and integral types are 'i'.
     char kind() const { return detail::array_descriptor_proxy(m_ptr)->kind; }
@@ -776,6 +785,7 @@ public:
         : array(pybind11::dtype(info), info.shape, info.strides, info.ptr, base) {}
 
     /// Array descriptor (dtype)
+    /// XXXXXXXX
     pybind11::dtype dtype() const {
         return reinterpret_borrow<pybind11::dtype>(detail::array_proxy(m_ptr)->descr);
     }
