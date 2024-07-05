@@ -463,7 +463,7 @@ def numpy_type_to_builtin_type(nptype) -> type:
         return types_complex64
     elif issubclass(nptype, (np.complex128, complex)):
         return types_complex128
-    elif issubclass(nptype, (str, np.string_, np.str_)):
+    elif issubclass(nptype, (str, np.bytes_, np.str_)):
         return types_str
     else:
         raise TypeError(f"Unsupported numpy type: {nptype}.")

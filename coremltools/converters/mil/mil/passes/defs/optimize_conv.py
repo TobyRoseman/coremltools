@@ -901,7 +901,7 @@ class fuse_conv_scale(AbstractGraphPass):
 
         # for the vector scale case, check if the shape is broacastable
         if not is_scalar:
-            if not np.product(scale.shape) == Cout:
+            if not np.prod(scale.shape) == Cout:
                 return False
             if len(scale.shape) == len(conv_weight.shape):
                 if not scale.shape[1] == Cout:

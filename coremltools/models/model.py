@@ -699,9 +699,6 @@ class MLModel:
         if type(data) == dict:
             preprocess_method(data)
             state = None if state is None else state.__proxy__
-
-            #import ipdb; ipdb.set_trace()
-
             return proxy.predict(data, state)
         else:
             assert type(data) == list
