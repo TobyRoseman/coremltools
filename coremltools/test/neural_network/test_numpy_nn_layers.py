@@ -6121,11 +6121,11 @@ class IOS14SingleLayerTests(CorrectnessTest):
                     np_out = np.matmul(x, np.transpose(W_for_numpy)) + b
                     expected = {"output": np_out}
                 elif rank == 4:
-                    x_shaped = np.reshape(x, (x.shape[0], np.product(x.shape[1:])))
+                    x_shaped = np.reshape(x, (x.shape[0], np.prod(x.shape[1:])))
                     np_out = np.matmul(x_shaped, np.transpose(W_for_numpy)) + b
                     expected = {"output": np.reshape(np_out, np_out.shape + (1, 1))}
                 elif rank == 5:
-                    x_shaped = np.reshape(x, x.shape[0:2] + (np.product(x.shape[2:]),))
+                    x_shaped = np.reshape(x, x.shape[0:2] + (np.prod(x.shape[2:]),))
                     np_out = np.matmul(x_shaped, np.transpose(W_for_numpy)) + b
                     expected = {
                         "output": np.reshape(
