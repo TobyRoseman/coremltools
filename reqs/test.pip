@@ -3,8 +3,10 @@ configparser
 h5py==2.10.0; platform_machine != "arm64" and python_version < "3.8"
 h5py==3.8.0; platform_machine != "arm64" and python_version >= "3.8"
 future
-numpy>1.18.4; platform_machine != "arm64"
-numpy==1.24.2; platform_machine == "arm64"
+
+numpy==2.0.0; python_version >= "3.9"
+numpy; python_version < "3.9"
+
 libsvm; python_version < '3.11'
 olefile==0.44
 pandas
@@ -15,11 +17,10 @@ pytest-cov
 pytest-sugar
 
 scikit-learn==0.19.2; python_version < '3.8'
-scikit-learn==1.1.2; python_version >= '3.8'
+scikit-learn==1.1.2; python_version == '3.8'
+scikit-learn==1.5.1; python_version > '3.8'
 
 scipy>1.4 ; python_version < '3.8'
-scipy==1.8.1; python_version >= '3.8' and python_version < '3.11'
-scipy==1.9.2; python_version == '3.11'
 
 six
 sympy > 1.6
