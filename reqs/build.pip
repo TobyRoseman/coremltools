@@ -7,7 +7,6 @@ numpy<1.20; platform_machine != "arm64" and python_version < "3.9"
 protobuf<=3.20.3; python_version < "3.7"
 protobuf==3.20.3; python_version >= "3.7"
 
-pytest
 six
 sympy
 tqdm

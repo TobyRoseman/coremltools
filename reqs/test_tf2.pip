@@ -1,4 +1,7 @@
--r ./test.pip
+numpy==1.26.4
+pillow
+pytest==7.1.2
+
 
 # TODO(rdar://123269464): Support a recent version of TensorFlow
 
