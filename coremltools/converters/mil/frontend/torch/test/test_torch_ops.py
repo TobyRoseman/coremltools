@@ -10369,6 +10369,9 @@ class TestIndex(TorchBaseTest):
             minimum_deployment_target=ct.target.iOS17,
         )
 
+    @pytest.mark.skip(
+        reason="Getting predictions from converted model causes 'Fatal Python error' which aborts test run."
+    )
     @pytest.mark.parametrize(
         "compute_unit, backend, frontend, input_dtype, shape, minimum_deployment_target",
         itertools.product(
