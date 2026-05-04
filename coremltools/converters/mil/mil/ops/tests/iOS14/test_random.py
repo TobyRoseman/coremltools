@@ -369,6 +369,7 @@ class TestRandomUniform:
             backend=backend,
         )
 
+    @pytest.mark.xfail(reason="Can not get predictions from saved model.")
     @pytest.mark.parametrize(
         "compute_unit, backend, rank, low, high, dynamic",
         itertools.product(

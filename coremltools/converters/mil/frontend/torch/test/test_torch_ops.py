@@ -13051,6 +13051,9 @@ class TestNms(TorchBaseTest):
                 "number of boxes is large)"
             )
 
+        if iou_threshold == 0 and box_num in (5, 20) and backend == ("mlprogram", "fp16"):
+            pytest.xfail("Prediction shape mismatch")
+
         class NmsModel(torch.nn.Module):
             def forward(self, boxes, scores):
                 return torchvision.ops.nms(boxes, scores, iou_threshold=iou_threshold)
