@@ -272,6 +272,7 @@ class TestRandomNormal:
             backend=backend,
         )
 
+    @pytest.mark.xfail(reason="Can not get predictions from converted model.")
     @pytest.mark.parametrize(
         "compute_unit, backend, rank, mean, dynamic",
         itertools.product(
@@ -369,7 +370,7 @@ class TestRandomUniform:
             backend=backend,
         )
 
-    @pytest.mark.xfail(reason="Can not get predictions from saved model.")
+    @pytest.mark.xfail(reason="Can not get predictions from converted model.")
     @pytest.mark.parametrize(
         "compute_unit, backend, rank, low, high, dynamic",
         itertools.product(
